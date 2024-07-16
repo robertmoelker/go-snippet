@@ -17,7 +17,7 @@ func main() {
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
 	// Setup dependencies for the application
 	app := &application{
@@ -27,6 +27,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:    *port,
+		ErrorLog: errorLog,
 		Handler: app.routes(),
 	}
 
