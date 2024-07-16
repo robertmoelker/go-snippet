@@ -7,12 +7,15 @@ import (
 	"net/http"
 	"os"
 
+	models "github.com/robertmoelker/lets-go/internal/models"
+
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
 
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	tasks    *models.TaskModel
 }
 
 func main() {
@@ -22,12 +25,6 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	// Setup dependencies for the application
-	app := &application{
-		infoLog:  infoLog,
-		errorLog: errorLog,
-	}
-
 	// Initialize the database
 	db, err := initDb()
 	if err != nil {
@@ -35,6 +32,12 @@ func main() {
 	}
 
 	defer db.Close()
+	// Setup dependencies for the application
+	app := &application{
+		infoLog:  infoLog,
+		errorLog: errorLog,
+		tasks:    &models.TaskModel{DB: db},
+	}
 
 	srv := &http.Server{
 		Addr:     *port,
