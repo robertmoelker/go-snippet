@@ -30,7 +30,7 @@ func main() {
 		Handler: app.routes(),
 	}
 
-	infoLog.Printf("Starting server on %s", port)
+	infoLog.Printf("Starting server on %s", *port)
 	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
