@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
-	"path"
-	"strconv"
-	"fmt"
+
+	"github.com/google/uuid"
+	"github.com/robertmoelker/lets-go/internal/models"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -14,10 +16,16 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tasks, err := app.tasks.Latest()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
 	files := []string{
 		"./ui/html/base.tmpl",
 		"./ui/html/partials/nav.tmpl",
-		"./ui/html/pages/home.tmpl",
+		"./ui/html/pages/view.tmpl",
 	}
 
 	ts, err := template.ParseFiles(files...)
@@ -26,23 +34,34 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = ts.ExecuteTemplate(w, "base", nil)
+	data := &templateData{Tasks: tasks}
+
+	err = ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
-
-	w.Write([]byte("Hello, World!"))
 }
 
 func (app *application) showTask(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(path.Base(r.URL.Path))
-	if err != nil || id < 1 {
+	id, err := uuid.Parse(r.URL.Query().Get("id"))
+	if err != nil {
 		app.notFound(w)
 		return
 	}
 
-	w.Write([]byte("Display a specific Task..."))
+	task, err := app.tasks.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrRecordNotFound) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+	}
+
+	fmt.Fprintf(w, "%+v", task)
+
+	// w.Write([]byte("Display a specific Task..."))
 }
 
 func (app *application) createTask(w http.ResponseWriter, r *http.Request) {
@@ -56,15 +75,17 @@ func (app *application) createTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) listTasks(w http.ResponseWriter, r *http.Request) {
-	// TODO: Continue here with the `latests` fetch
 	tasks, err := app.tasks.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	fmt.Fprintf(w, "%+v", tasks)
+	for _, task := range tasks {
+		fmt.Fprintf(w, "%+v\n", task)
+	}
+	// fmt.Fprintf(w, "%+v", tasks)
 
-	app.infoLog.Println(tasks)
+	// app.infoLog.Println(tasks)
 	w.Write([]byte("Display the list of Tasks..."))
 }

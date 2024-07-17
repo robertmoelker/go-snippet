@@ -1,0 +1,25 @@
+{{define "title"}}Task #{{ .title }}{{end}}
+
+{{define "main"}}
+  <h2>Latest Tasks</h2>
+  {{if .Tasks}}
+    <table class="striped">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Priority</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+    {{range .Tasks}}
+      <tr>
+        <td>{{ .Title }}</td>
+        <td>{{ .Priority }}</td>
+        <td>{{ .Status }}</td>
+      </tr>
+    {{end}}
+      </tbody>
+    </table>
+  {{end}}
+{{end}}

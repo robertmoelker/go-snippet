@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	models "github.com/robertmoelker/lets-go/internal/models"
+	"github.com/joho/godotenv"
+	"github.com/robertmoelker/lets-go/internal/models"
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 )
@@ -25,6 +26,12 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	// Load environment variables
+	err := godotenv.Load()
+	if err != nil {
+		errorLog.Fatal("Error loading .env file")
+	}
+
 	// Initialize the database
 	db, err := initDb()
 	if err != nil {
@@ -32,6 +39,7 @@ func main() {
 	}
 
 	defer db.Close()
+
 	// Setup dependencies for the application
 	app := &application{
 		infoLog:  infoLog,
