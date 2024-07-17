@@ -4,9 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - TURSO_DATABASE_URL=libsql://todo-list-robertmoelker.turso.io
-      - TURSO_AUTH_TOKEN=eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MjExNjA2NTksImlkIjoiYWRmYzE1Y2EtMmU5MS00YWI3LThiMjctNDUyMjM4ZTk3MzUzIn0.xsGHFu9klI_Ua7s_vlTmGoI2fZv0Q3RXi3X0KSXy4FPYB1Z1RZ3vt46WWzT8P7on4rJ1pAHWxgkug366il7RCA
     ports:
       - 4000:4000
     volumes:
